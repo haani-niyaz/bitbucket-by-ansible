@@ -1,0 +1,4 @@
+*.retry
+.vault_pass
+inventory.ini
+host_vars/vault/bitbucket_01.yml
