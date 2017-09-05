@@ -71,7 +71,7 @@
       docker_container:
        name: '{{ elasticsearch_host }}'
        state: started
-       image: hniyaz/elasticsearch:2.0
+       image: hniyaz/elasticsearch:1.0
        volumes:
         - /root/buckler.yml:/usr/share/elasticsearch/config/buckler/buckler.yml
        networks:
