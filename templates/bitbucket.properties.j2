@@ -1,0 +1,28 @@
+
+jdbc.driver=org.postgresql.Driver
+jdbc.url=jdbc:postgresql://{{ bitbucket_db_host }}:{{ bitbucket_db_port }}/bitbucket
+jdbc.user={{ bitbucket_db_user}}
+jdbc.password={{ bitbucket_db_password }}
+plugin.search.elasticsearch.baseurl=http://{{ elasticsearch_host }}:9200/
+plugin.search.elasticsearch.username={{ plugin_elasticsearch_username }}
+plugin.search.elasticsearch.password= {{ plugin_elasticsearch_password }}
+
+# Use multicast to discover cluster nodes (recommended).
+hazelcast.network.multicast=false
+
+# If your network does not support multicast, you may uncomment the following lines and substitute
+# the IP addresses of some or all of your cluster nodes. (Not all of the cluster nodes have to be
+# listed here but at least one of them has to be active when a new node joins.) 
+hazelcast.network.tcpip=true
+hazelcast.network.tcpip.members={{ bitbucket_hazelcast_members }}
+
+# The following should uniquely identify your cluster on the LAN. 
+hazelcast.group.name={{ bitbucket_hazelcast_groupname }}
+hazelcast.group.password={{ bitbucket_hazelcast_password }}
+
+setup.displayName=Bitbucket
+setup.sysadmin.displayName=John Doe
+setup.sysadmin.username=admin
+setup.sysadmin.password={{ bitbucket_admin_password }}
+setup.sysadmin.emailAddress=John.Doe@example.com
+setup.license={{ bitbucket_license }}

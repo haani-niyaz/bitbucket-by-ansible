@@ -1,0 +1,88 @@
+---
+
+- hosts: bitbucket_01
+  user: ec2-infra
+  become: yes # Run as sudo user
+  connection: ssh # Default is ssh
+  gather_facts: False # Disable to speed up run
+  vars_files:
+    - ../host_vars/vars/bitbucket_01.yml
+    - ../host_vars/vault/bitbucket_01.yml
+  tasks:
+    - name: Intall docker-py
+      pip:
+        name: 'docker-py>=1.10.0'
+        state: present
+    - name: Create bitbucket network
+      docker_network:
+        name: bitbucket
+        ipam_options:
+          subnet: '172.16.0.0/16'
+          gateway: 172.16.0.1
+    - name: Create postgresql database
+      tags: db-container
+      docker_container:
+        name: bitbucket-db-01
+        state: started
+        image: hniyaz/postgres:1.0
+        networks:
+          - name: bitbucket
+            ipv4_address: "172.16.0.2"
+        env:
+          POSTGRES_PASSWORD: '{{ bitbucket_db_password }}'
+    - name: Create bitbucket db
+      tags: create-db
+      shell: sleep 5 && docker exec -i bitbucket-db-01 /bin/bash -l -c '/create_db.sh {{ bitbucket_db_user }} {{ bitbucket_db_password }} bitbucket' && touch ~/.create_db
+      args:
+        creates: ~/.create_db 
+    - name: Generate bitbucket.properties
+      tags: bitbucket-properties
+      template:
+        src: ../templates/bitbucket.properties.j2
+        dest: /root/bitbucket.properties
+        owner: 2 # Give container user permissions to the file
+        group: 2 # Give container user permissions to the file
+        mode: 0640
+    - name: Run bitbucket container
+      docker_container:
+        name: bitbucket-01
+        state: started
+        image: atlassian/bitbucket-server:5.0
+        volumes:
+          - shared:/var/atlassian/application-data/bitbucket/shared
+          - data:/var/atlassian/application-data/bitbucket
+          - /root/bitbucket.properties:/var/atlassian/application-data/bitbucket/shared/bitbucket.properties
+        networks:
+          - name: bitbucket
+            ipv4_address: "172.16.0.3"
+        env:
+          ELASTICSEARCH_ENABLED: false
+        ports:
+          - "7990:7990"
+          - "7999:7999"
+    - name: Generate buckler.yml
+      template:
+        src: ../templates/buckler.yml.j2
+        dest: /root/buckler.yml
+        owner: 105 # Give container user permissions to the file
+        group: 108 # Give container user permissions to the file
+        mode: 0600
+    - name: Run elasticsearch container
+      docker_container:
+       name: '{{ elasticsearch_host }}'
+       state: started
+       image: hniyaz/elasticsearch:2.0
+       volumes:
+        - /root/buckler.yml:/usr/share/elasticsearch/config/buckler/buckler.yml
+       networks:
+        - name: bitbucket
+          ipv4_address: "172.16.0.4"
+       env:
+        -Etransport.host: 0.0.0.0
+        -Ediscovery.zen.minimum_master_nodes: 1
+
+
+
+
+
+

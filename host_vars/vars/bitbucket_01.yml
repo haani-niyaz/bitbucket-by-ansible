@@ -1,0 +1,9 @@
+---
+
+bitbucket_db_host: bitbucket-db-01
+bitbucket_db_port: 5432
+bitbucket_db_user: bitbucketuser
+elasticsearch_host: elasticsearch-01
+plugin_elasticsearch_username: admin
+bitbucket_hazelcast_groupname: bitbucket-cluster
+bitbucket_hazelcast_members: 172.16.0.3:5701
