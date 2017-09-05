@@ -1,5 +1,14 @@
 # Bitbucket by Ansible
 
+## Purpose
+
+Provide a zero-touch ansible deployment to stand up bitbucket, elasticsearch and postgres in docker containers with preconfigured settings.
+
+## Warning
+
+The scripts are purely for experimental purpose and does not follow any best practices at this stage.
+
+
 ## Setup
 
 ### Target Host Prerequistes
@@ -79,14 +88,16 @@ dbservers
 ansible_ssh_user=<host-user>
 ```
 
-
-
-
 ## Run
-
 
 #### Dry-run
 
 ```
 $ ansible-playbook playbooks/bitbucket.yml  --vault-password-file .vault_pass --check
+```
+
+#### Dry-run
+
+```
+$ ansible-playbook playbooks/bitbucket.yml  --vault-password-file .vault_pass
 ```
